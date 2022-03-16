@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <omp.h>
-// compile with: icc -O2 -qopenmp -xhost main.cpp
 
 void initialize(float** arr, int n) {
   for (int i = 0; i < n; i++) {
@@ -41,49 +39,43 @@ int main() {
   const float a = 0.05, b = 0.1, c = 0.4;
   const float t = 0.1;
   const int n = 16386;
+  // int n = 10;
 
-  // dummy parallel region to prevent overhead from starting the very first parallel region.
-  #pragma omp parallel
-  {
-    printf("This is thread %d\n", omp_get_thread_num());
-  }
-
-  double start = omp_get_wtime();
+  clock_t start = clock();
   float** x = (float**)malloc(n * sizeof(float*));
-  
   for (int i = 0; i < n; i++)
     x[i] = (float*)malloc(n * sizeof(float));
-  double end = omp_get_wtime();
-  float t_alloc_x = end - start;
+  clock_t end = clock();
+  float t_alloc_x = (end - start) / (float) CLOCKS_PER_SEC;
 
-  start = omp_get_wtime();
+  start = clock();
   float** y = (float**)malloc(n * sizeof(float*));
   for (int i = 0; i < n; i++)
     y[i] = (float*)malloc(n * sizeof(float));
-  end = omp_get_wtime();
-  double t_alloc_y = end - start;
+  end = clock();
+  float t_alloc_y = (end - start) / (float) CLOCKS_PER_SEC;
 
-  start = omp_get_wtime();
+  start = clock();
   initialize(x, n);
-  end = omp_get_wtime();
-  double t_init_x = end - start;
+  end = clock();
+  float t_init_x = (end - start) / (float) CLOCKS_PER_SEC;
 
-  start = omp_get_wtime();
+  start = clock();
   smooth(x, y, n, a, b, c);
-  end = omp_get_wtime();
-  double t_smooth = end - start;
+  end = clock();
+  float t_smooth = (end - start) / (float) CLOCKS_PER_SEC;
 
   int cnt_x = 0, cnt_y = 0;
 
-  start = omp_get_wtime();
+  start = clock();
   count(x, n, t, cnt_x);
-  end = omp_get_wtime();
-  double t_count_x = end - start;
+  end = clock();
+  float t_count_x = (end - start) / (float) CLOCKS_PER_SEC;
 
-  start = omp_get_wtime();
+  start = clock();
   count(y, n, t, cnt_y);
-  end = omp_get_wtime();
-  double t_count_y = end - start;
+  end = clock();
+  float t_count_y = (end - start) / (float) CLOCKS_PER_SEC;
 
   printf("Summarry\n--------\n");
   printf("Number of elements in a row/column        :: %10d\n", n);
