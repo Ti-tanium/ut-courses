@@ -38,7 +38,7 @@ void count(float** arr, int n, float t, int &cnt) {
 int main() {
   const float a = 0.05, b = 0.1, c = 0.4;
   const float t = 0.1;
-  const int n = 16386;
+  const long n = 98306;
   // int n = 10;
 
   clock_t start = clock();
