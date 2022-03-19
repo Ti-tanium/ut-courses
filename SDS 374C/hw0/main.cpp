@@ -3,9 +3,10 @@
 #include <time.h>
 
 void initialize(float** arr, int n) {
+  unsigned seed = (int) time(NULL);
   for (int i = 0; i < n; i++) {
     for (int j = 0; j < n; j++) {
-      arr[i][j] = random()/(float) RAND_MAX;
+      arr[i][j] = rand_r(&seed) / (float) RAND_MAX;
     }
   }
 }
@@ -29,8 +30,8 @@ void printMatrix(float** x, int n) {
 }
 
 void count(float** arr, int n, float t, int &cnt) {
-  for (int i = 0; i < n; i++) {
-    for (int j = 0; j < n; j++)
+  for (int i = 1; i < n - 1; i++) {
+    for (int j = 1; j < n - 1; j++)
       if (arr[i][j] < t) cnt++;
   }
 }
