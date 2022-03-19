@@ -30,26 +30,31 @@ int main() {
   
   do {
 
-    // 1st red-bloack loop
-    #pragma omp parallel for schedule(runtime)
-    for (i = 1; i < N; i+=2) 
-      a[i] = (a[i] + a[i-1]) / 2.0;
-
-    // 2nd red-bloack loop
-    #pragma omp parallel for schedule(runtime)
-    for (i = 0; i < N-1; i+=2) 
-      a[i] = (a[i] + a[i+1]) / 2.0;
-    
-
-    // error var initialization  
-    error=0.0; 
-    niter++;
-
-    // error loop 
-    #pragma omp parallel for reduction(+:error) schedule(runtime)
-    for (i = 0; i < N-1; i++) 
-      error = error + fabs(a[i] - a[i+1]);
+    #pragma omp parallel shared(error)
+    {
       
+      // 1st red-bloack loop
+      #pragma omp for schedule(runtime)
+      for (i = 1; i < N; i+=2) 
+        a[i] = (a[i] + a[i-1]) / 2.0;
+      
+      // 2nd red-bloack loop
+      #pragma omp for schedule(runtime)
+      for (i = 0; i < N-1; i+=2) 
+        a[i] = (a[i] + a[i+1]) / 2.0;
+
+      // error var initialization  
+      #pragma omp single
+      {
+        error=0.0; 
+        niter++;
+      }
+
+      // error loop 
+      #pragma omp for reduction(+:error) schedule(runtime)
+      for (i = 0; i < N-1; i++) 
+        error = error + fabs(a[i] - a[i+1]);
+    }  
   } while (error >= 1.0);
 
   t1 = gtod_timer();
